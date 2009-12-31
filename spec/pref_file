@@ -1,0 +1,9 @@
+folders:
+  in: ~/Desktop/BerieDataProjecten/2009-VDA-CVZ/pdf_numberer/watch
+  out: ~/Desktop/BerieDataProjecten/2009-VDA-CVZ/pdf_numberer/out
+orders:
+  4000000: #ordernumber-#date-#counter
+  4000001: #ordernumber-#date-#counter-#filename
+counter:
+  4000000: 0
+  4000001: 0
