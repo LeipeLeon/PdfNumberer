@@ -69,10 +69,11 @@ class PdfNumberer
 
   def process_pdf(pdf_file, ordernumber = 0)
     logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tProcessing: #{pdf_file}"
+    savepath = prepare_out_folder(ordernumber)
     new_file = PdfProcessor.new(pdf_file, 
       :code        => create_code(pdf_file, ordernumber),
-      :filename    => "new.pdf"
-      # :savepath    => "#{ROOT}/../out"
+      :filename    => File.basename(pdf_file),
+      :savepath    => savepath
     )
   end
 
@@ -86,7 +87,7 @@ class PdfNumberer
     template = replace_tag(template, 'date',        DateTime.now.strftime("%Y/%m/%d"))
     template = replace_tag(template, 'counter',     "%07d" % new_number)
     template = replace_tag(template, 'filename',    File.basename(pdf_file, '.pdf'))
-    logger.info template
+    logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tCode: #{template}"
     template
   end
 
@@ -105,13 +106,15 @@ class PdfNumberer
   # end
 
   def move_to_processed_dir(pdf_file, ordernumber)
+    move_to = prepare_processed_folder(ordernumber)
+    logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tmoving #{File.basename(pdf_file)} to #{move_to}"
+
     if ENV['ENVIRONMENT'] == 'test'
-      logger.info "#{self.class}\t(Sould move file, but we're in test)"
+      logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\t(Sould move file, but we're in test)"
     else
-      logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tmoving to processed (#{pdf_file})"
       FileUtils.mv(
         pdf_file, 
-        File.expand_path(@prefs["folders"]["processed"], File.basename(pdf_file))
+        File.join(File.expand_path(move_to), File.basename(pdf_file))
       )
     end
   end
@@ -121,6 +124,20 @@ class PdfNumberer
     template.gsub!(/\{#{tag}\}/, replace.to_s) if matches
     template
   end
+
+protected
+  def prepare_out_folder(ordernumber)
+    move_to = File.join(File.expand_path(@prefs["folders"]["out"]), ordernumber)
+    FileUtils.mkdir(move_to) unless File.exists?(move_to)
+    move_to
+  end
+
+  def prepare_processed_folder(ordernumber)
+    move_to = File.join(File.expand_path(@prefs["folders"]["processed"]), ordernumber)
+    FileUtils.mkdir(move_to) unless File.exists?(move_to)
+    move_to
+  end
+
 end
 
 # if ARGV.include?('-h')
