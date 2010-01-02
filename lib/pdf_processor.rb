@@ -42,8 +42,13 @@ class PdfProcessor
                 # @rotation   = options[:rotation]
                 @pdf.setfont(@pdf.load_font(@regularfont, "winansi", "embedding"), @fontsize)
                 @pdf.set_value("leading", @leading)
+                @pdf.save
                 @pdf.setcolor("fill", "cmyk", 0.0, 0.0, 0.0, 1)
-                @pdf.show_xy(@code, @position[:x], @position[:y])
+                @pdf.translate(@position[:x], @position[:y])
+                @pdf.rotate(@rotation) if @rotation != 0
+                @pdf.show(@code)
+                @pdf.restore
+
                 # @pdf.continue_text(@customer.email)
                 # @pdf.setcolor("fill", "cmyk", 0.0, 0, 1, 0)
                 # @pdf.show_xy("#{@customer.first_name} #{@customer.last_name}", 60-2, y-2)
@@ -78,6 +83,7 @@ protected
       :x           => 216,
       :y           => 720,
       :code        => 'CODE',
+      :rotation    => 0,
       :on_pages    => [1]
     }.merge(options)
 
@@ -100,6 +106,7 @@ protected
       :x => options[:x],
       :y => options[:y]
     }
+    @rotation   = options[:rotation]
     @on_pages   = options[:on_pages]
 
     @code = options[:code]

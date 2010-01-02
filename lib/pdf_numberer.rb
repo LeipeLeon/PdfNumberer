@@ -78,7 +78,8 @@ class PdfNumberer
       :code        => code,
       :filename    => "#{code}.pdf",
       :savepath    => savepath,
-      :on_pages    => [1,5]
+      :on_pages    => [1,5],
+      :rotation    => -90,
     )
   end
 
