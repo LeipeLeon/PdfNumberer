@@ -23,62 +23,51 @@ describe PdfNumberer do
   end
 
   it "should set a watch folder" do
-    @numberer.prefs["folders"]["in"].should   eql(@preferences["folders"]["in"])
-    @numberer.prefs["folders"]["out"].should  eql(@preferences["folders"]["out"])
+    @numberer.prefs["options"]["folder_in"].should   eql(@preferences["options"]["folder_in"])
+    @numberer.prefs["options"]["folder_out"].should  eql(@preferences["options"]["folder_out"])
   end
 
   it "should check the preferences" do
-    @numberer.prefs["folders"]["in"] = nil
+    @numberer.prefs["options"]['default']["folder_in"] = nil
     lambda {
       @numberer.check_prefs
-    }.should raise_error(RuntimeError, "No watchfolder given.")
+    }.should raise_error(ArgumentError) #, "Preference file may be corrupt (missing options: default: folder_in)")
   end
 
   it "should watch a given folder" do
-    Watcher.should_receive(:folder).with(@preferences["folders"]["in"]).and_return(@preferences["folders"]["in"])
+    Watcher.should_receive(:folder).with(@preferences["options"]['default']["folder_in"]).and_return(@preferences["options"]['default']["folder_in"])
+    @numberer.should_receive(:traverse_subfolders).and_return(['folder_path'])
     @numberer.watch.length.should eql(1)
   end
 
   it "should traverse subfolders" do
-    recieve_pdf_processor
-    # @numberer.traverse_subfolders(@preferences["folders"]["in"]).class.should   eql(Array)
-    @numberer.traverse_subfolders(@preferences["folders"]["in"]).length.should  eql(1)
+    @numberer.should_receive(:process_folder_items).twice.with(File.expand_path(@preferences["options"]['default']["folder_in"] + '/4000000'), '4000000').and_return(['something'])
+    @numberer.traverse_subfolders(@preferences["options"]['default']["folder_in"]).class.should   eql(Array)
+    @numberer.traverse_subfolders(@preferences["options"]['default']["folder_in"]).length.should  eql(1)
   end
 
-  xit "should process_folder_items" do
-    recieve_pdf_processor
-    @numberer.process_folder_items(@preferences["folders"]["in"] + '/4001000', "4001000").should eql(true)
+  it "should process_folder_items" do
+    @numberer.should_receive(:process_pdf).with(SPEC_TEST_PDF, '4000000').and_return(true)
+    @numberer.should_receive(:move_to_processed_dir).and_return(true)
+    @numberer.process_folder_items(File.expand_path(@preferences["options"]['default']["folder_in"] + '/4000000'), "4000000").should eql([SPEC_TEST_PDF])
   end
 
   it "should parse a pdf" do
-    recieve_pdf_processor
-    @numberer.process_pdf(SPEC_TEST_PDF, "4000000").should eql(PDFlib)
-  end
-
-  it "should create code with a template" do
-    @numberer.create_code('000070010879.pdf', '4000000').should eql(timestamped_code)
-  end
-
-  describe "subfolders" do
-    it "should traverse through each folder" do
-      @numberer.traverse_subfolders(@preferences["folders"]["in"])
-    end
-
-    it "should have an order reference number"
-    it "should process new items in folder"
-  end
-
-  def recieve_pdf_processor
     PdfProcessor.should_receive(:new).with(
       SPEC_TEST_PDF, 
       :code        => timestamped_code,
       :filename    => "#{timestamped_code}.pdf",
-      :savepath    => File.expand_path(@preferences["folders"]["out"] + '/4000000'),
+      :savepath    => File.expand_path(@preferences["options"]['default']["folder_out"] + '/4000000'),
       :on_pages    => @preferences['options']['default']['on_pages'],
       :rotation    => @preferences['options']['default']['rotation'],
       :x           => @preferences['options']['default']['x'],
       :y           => @preferences['options']['default']['y']
     ).and_return(PDFlib)
+    @numberer.process_pdf(SPEC_TEST_PDF, "4000000").should eql(PDFlib)
+  end
+
+  it "should create code with a template" do
+    @numberer.create_code('000070010879.pdf', '4000000').should eql(timestamped_code)
   end
 
   def timestamped_code

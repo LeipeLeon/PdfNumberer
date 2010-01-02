@@ -32,7 +32,7 @@ class PdfNumberer
   end
 
   def check_prefs
-    raise "No watchfolder given." if @prefs["folders"]["in"] == nil
+    raise "No watchfolder given." if get_pref('options', 'folder_in') == nil
   end
 
   def save_prefs
@@ -41,7 +41,7 @@ class PdfNumberer
   end
 
   def watch
-    changed_folder = Watcher.folder(@prefs["folders"]["in"])
+    changed_folder = Watcher.folder(get_pref('options', 'folder_in'))
     traverse_subfolders(changed_folder)
   end
 
@@ -78,10 +78,10 @@ class PdfNumberer
       :code        => code,
       :filename    => "#{code}.pdf",
       :savepath    => savepath,
-      :on_pages    => [1,5],
-      :rotation    => -90,
-      :x           => 30,
-      :y           => 600
+      :on_pages    => get_pref('options', 'on_pages', ordernumber),
+      :rotation    => get_pref('options', 'rotation', ordernumber),
+      :x           => get_pref('options', 'x', ordernumber),
+      :y           => get_pref('options', 'y', ordernumber)
     )
   end
 
@@ -89,8 +89,7 @@ class PdfNumberer
     # {ordernumber}-{date}-{counter}-{filename}
     new_number = counter(ordernumber.to_i).to_s
 
-    template = @prefs['orders'][ordernumber.to_i].dup if @prefs['orders'][ordernumber.to_i]
-    template = @prefs['orders']["default"].dup unless template
+    template = get_pref('options', 'code_format', ordernumber).dup
 
     template = replace_tag(template, 'ordernumber', "%07d" % ordernumber)
     template = replace_tag(template, 'date',        DateTime.now.strftime("%Y-%m-%d"))
@@ -134,15 +133,25 @@ class PdfNumberer
     template
   end
 
+  def get_pref(scope, pref, ordernumber = nil)
+    if @prefs[scope][ordernumber] && @prefs[scope][ordernumber][pref]
+      @prefs[scope][ordernumber][pref]
+    elsif @prefs[scope]['default'] && @prefs[scope]['default'][pref]
+      @prefs[scope]['default'][pref]
+    else
+      raise ArgumentError, "[41;37;1m\n\n\nPreference file may be corrupt (missing #{scope}: #{ordernumber ? ordernumber : 'default' }: #{pref})\n\nSee\n#{File.dirname(__FILE__)}/spec/pref_file\nfor a sample pref file\n\n[0m"
+    end
+  end
+
 protected
   def prepare_out_folder(ordernumber)
-    move_to = File.join(File.expand_path(@prefs["folders"]["out"]), ordernumber)
+    move_to = File.join(File.expand_path(get_pref('options', 'folder_out')), ordernumber)
     FileUtils.mkdir(move_to) unless File.exists?(move_to)
     move_to
   end
 
   def prepare_processed_folder(ordernumber)
-    move_to = File.join(File.expand_path(@prefs["folders"]["processed"]), ordernumber)
+    move_to = File.join(File.expand_path(get_pref('options', 'folder_processed')), ordernumber)
     FileUtils.mkdir(move_to) unless File.exists?(move_to)
     move_to
   end

@@ -1,14 +1,10 @@
 --- 
-folders: 
-  in: ~/Desktop/BerieDataProjecten/2009-VDA-CVZ/pdf_numberer/watch
-  out: ~/Desktop/BerieDataProjecten/2009-VDA-CVZ/pdf_numberer/out
-  processed: ~/Desktop/BerieDataProjecten/2009-VDA-CVZ/pdf_numberer/processed
-orders:
-  default: "{ordernumber}-{date}-{counter}-{filename}"
-  4000000: "{ordernumber}-{date}-{counter}-{filename}"
-  4000001: "{ordernumber}-{date}-{counter}"
 options:
   default: 
+    folder_in: ~/Desktop/BerieDataProjecten/2009-VDA-CVZ/pdf_numberer/watch
+    folder_out: ~/Desktop/BerieDataProjecten/2009-VDA-CVZ/pdf_numberer/out
+    folder_processed: ~/Desktop/BerieDataProjecten/2009-VDA-CVZ/pdf_numberer/processed
+    code_format: "{ordernumber}-{date}-{counter}-{filename}"
     x: 30
     y: 600
     rotation: -90
@@ -16,5 +12,6 @@ options:
       - 1
       - 5
 counter:
+  default: 0
   4000000: 0
   4000001: 0
