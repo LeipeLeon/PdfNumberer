@@ -73,9 +73,10 @@ class PdfNumberer
   def process_pdf(pdf_file, ordernumber = 0)
     logger.info "#{self.class}\t[41;37;1m#{ordernumber}\t#{File.basename(pdf_file)}[0m\tProcessing: #{pdf_file}"
     savepath = prepare_out_folder(ordernumber)
+    code = create_code(pdf_file, ordernumber)
     new_file = PdfProcessor.new(pdf_file, 
-      :code        => create_code(pdf_file, ordernumber),
-      :filename    => File.basename(pdf_file),
+      :code        => code,
+      :filename    => "#{code}.pdf",
       :savepath    => savepath
     )
   end
@@ -88,7 +89,7 @@ class PdfNumberer
     template = @prefs['orders']["default"].dup unless template
 
     template = replace_tag(template, 'ordernumber', "%07d" % ordernumber)
-    template = replace_tag(template, 'date',        DateTime.now.strftime("%Y/%m/%d"))
+    template = replace_tag(template, 'date',        DateTime.now.strftime("%Y-%m-%d"))
     template = replace_tag(template, 'counter',     "%07d" % new_number)
     template = replace_tag(template, 'filename',    File.basename(pdf_file, '.pdf'))
     logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tCode: #{template}"
