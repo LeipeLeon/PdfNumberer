@@ -1,12 +1,15 @@
+$LOAD_PATH << File.dirname(__FILE__)
+
+require 'rubygems'
 require 'logger'
 require 'yaml'
-require 'watcher'
 require 'fileutils'
+require 'watcher'
 require 'pdf_processor'
 
 class PdfNumberer
 
-  PREFS_FILE = '~/.pdf_numberer'
+  PREFS_FILE = '~/pdf_numberer'
 
   attr :pdf
   attr :prefs
@@ -34,7 +37,7 @@ class PdfNumberer
 
   def save_prefs
     return true if ENV['ENVIRONMENT'] == 'test'
-    File.open(@config_file, 'w') { |f| f.print @prefs.to_yaml }
+    File.open(File.expand_path(@config_file), 'w') { |f| f.print @prefs.to_yaml }
   end
 
   def watch
@@ -68,7 +71,7 @@ class PdfNumberer
   end
 
   def process_pdf(pdf_file, ordernumber = 0)
-    logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tProcessing: #{pdf_file}"
+    logger.info "#{self.class}\t[41;37;1m#{ordernumber}\t#{File.basename(pdf_file)}[0m\tProcessing: #{pdf_file}"
     savepath = prepare_out_folder(ordernumber)
     new_file = PdfProcessor.new(pdf_file, 
       :code        => create_code(pdf_file, ordernumber),
@@ -79,9 +82,10 @@ class PdfNumberer
 
   def create_code(pdf_file, ordernumber = 0)
     # {ordernumber}-{date}-{counter}-{filename}
-    new_number = counter(ordernumber).to_s
-    template = @prefs['orders'][ordernumber.to_i]
-    template = @prefs['orders']["default"]
+    new_number = counter(ordernumber.to_i).to_s
+
+    template = @prefs['orders'][ordernumber.to_i].dup if @prefs['orders'][ordernumber.to_i]
+    template = @prefs['orders']["default"].dup unless template
 
     template = replace_tag(template, 'ordernumber', "%07d" % ordernumber)
     template = replace_tag(template, 'date',        DateTime.now.strftime("%Y/%m/%d"))
@@ -92,13 +96,13 @@ class PdfNumberer
   end
 
   def counter(ordernumber)
-    if @prefs["counter"][ordernumber.to_i]
-      @prefs["counter"][ordernumber.to_i] += 1
+    if @prefs["counter"][ordernumber]
+      @prefs["counter"][ordernumber] += 1
     else
-      @prefs["counter"][ordernumber.to_i] = 1
+      @prefs["counter"][ordernumber] = 1
     end
     save_prefs
-    @prefs["counter"][ordernumber.to_i]
+    @prefs["counter"][ordernumber]
   end
 
   # def save_in_out_folder(file)
