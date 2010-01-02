@@ -7,6 +7,14 @@ orders:
   default: "{ordernumber}-{date}-{counter}-{filename}"
   4000000: "{ordernumber}-{date}-{counter}-{filename}"
   4000001: "{ordernumber}-{date}-{counter}"
+options:
+  default: 
+    x: 30
+    y: 600
+    rotation: -90
+    on_pages: 
+      - 1
+      - 5
 counter:
   4000000: 0
   4000001: 0

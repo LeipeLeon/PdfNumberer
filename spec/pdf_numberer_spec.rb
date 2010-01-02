@@ -4,6 +4,7 @@ require 'pdf_numberer'
 
 describe PdfNumberer do
   SPEC_TEST_FILE = File.expand_path(File.dirname(__FILE__) + '/pref_file')
+  SPEC_TEST_PDF  = File.expand_path(File.dirname(__FILE__) + '/../watch/4000000/000070010879.pdf')
   ENV['ENVIRONMENT'] = 'test'
 
   before(:each) do
@@ -34,7 +35,28 @@ describe PdfNumberer do
   end
 
   it "should watch a given folder" do
-    # @numberer.watch
+    Watcher.should_receive(:folder).with(@preferences["folders"]["in"]).and_return(@preferences["folders"]["in"])
+    @numberer.watch.length.should eql(1)
+  end
+
+  it "should traverse subfolders" do
+    recieve_pdf_processor
+    # @numberer.traverse_subfolders(@preferences["folders"]["in"]).class.should   eql(Array)
+    @numberer.traverse_subfolders(@preferences["folders"]["in"]).length.should  eql(1)
+  end
+
+  xit "should process_folder_items" do
+    recieve_pdf_processor
+    @numberer.process_folder_items(@preferences["folders"]["in"] + '/4001000', "4001000").should eql(true)
+  end
+
+  it "should parse a pdf" do
+    recieve_pdf_processor
+    @numberer.process_pdf(SPEC_TEST_PDF, "4000000").should eql(PDFlib)
+  end
+
+  it "should create code with a template" do
+    @numberer.create_code('000070010879.pdf', '4000000').should eql(timestamped_code)
   end
 
   describe "subfolders" do
@@ -42,10 +64,25 @@ describe PdfNumberer do
       @numberer.traverse_subfolders(@preferences["folders"]["in"])
     end
 
-    it "should have an order reference number" do
-    end
-
-    xit "should process new items in folder" do
-    end
+    it "should have an order reference number"
+    it "should process new items in folder"
   end
+
+  def recieve_pdf_processor
+    PdfProcessor.should_receive(:new).with(
+      SPEC_TEST_PDF, 
+      :code        => timestamped_code,
+      :filename    => "#{timestamped_code}.pdf",
+      :savepath    => File.expand_path(@preferences["folders"]["out"] + '/4000000'),
+      :on_pages    => @preferences['options']['default']['on_pages'],
+      :rotation    => @preferences['options']['default']['rotation'],
+      :x           => @preferences['options']['default']['x'],
+      :y           => @preferences['options']['default']['y']
+    ).and_return(PDFlib)
+  end
+
+  def timestamped_code
+    "4000000-#{DateTime.now.strftime("%Y-%m-%d")}-0000001-000070010879"
+  end
+
 end
