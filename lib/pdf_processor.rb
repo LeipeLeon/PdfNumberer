@@ -28,23 +28,26 @@ class PdfProcessor
       puts "processing #{@infile}"
       @doc = @pdf.open_pdi(@infile, "", 0)
         raise "Error: " + @pdf.get_errmsg() if (@doc == -1)
-
-        @page = @pdf.open_pdi_page(@doc, 1, "")
-          raise "Error: " + @pdf.get_errmsg() if (@page == -1)
-          # Establish coordinates with the origin in the upper left corner.
-          @pdf.begin_page_ext(@pagewidth, @pageheight, "topdown")
-            @pdf.fit_pdi_page(@page, 0, @pageheight, "")
-            @pdf.setfont(@pdf.load_font(@regularfont, "winansi", ""), @fontsize)
-            @pdf.set_value("leading", @leading)
-            @pdf.setcolor("fill", "cmyk", 0.0, 0.0, 0.0, 1)
-            @pdf.show_xy("CODE", @position[:x], @position[:y])
-            # @pdf.continue_text(@customer.email)
-            # @pdf.setcolor("fill", "cmyk", 0.0, 0, 1, 0)
-            # @pdf.show_xy("#{@customer.first_name} #{@customer.last_name}", 60-2, y-2)
-            # @pdf.continue_text(@customer.email)
-
-          @pdf.end_page_ext("")
-        @pdf.close_pdi_page(@page)
+        page_count = @pdf.get_pdi_value('/Root/Pages/Count', @doc, -1, 0)
+        1.step(page_count, 1) do |page_counter|
+          @page = @pdf.open_pdi_page(@doc, page_counter, "")
+            raise "Error: " + @pdf.get_errmsg() if (@page == -1)
+            # Establish coordinates with the origin in the upper left corner.
+            @pdf.begin_page_ext(@pagewidth, @pageheight, "topdown")
+              @pdf.fit_pdi_page(@page, 0, @pageheight, "")
+              if 1 == page_counter
+                @pdf.setfont(@pdf.load_font(@regularfont, "winansi", ""), @fontsize)
+                @pdf.set_value("leading", @leading)
+                @pdf.setcolor("fill", "cmyk", 0.0, 0.0, 0.0, 1)
+                @pdf.show_xy("CODE", @position[:x], @position[:y])
+                # @pdf.continue_text(@customer.email)
+                # @pdf.setcolor("fill", "cmyk", 0.0, 0, 1, 0)
+                # @pdf.show_xy("#{@customer.first_name} #{@customer.last_name}", 60-2, y-2)
+                # @pdf.continue_text(@customer.email)
+              end
+            @pdf.end_page_ext("")
+          @pdf.close_pdi_page(@page)
+        end
       @pdf.close_pdi(@doc)
     @pdf.end_document("")
 
