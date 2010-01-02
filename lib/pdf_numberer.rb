@@ -32,7 +32,9 @@ class PdfNumberer
   end
 
   def check_prefs
-    raise "No watchfolder given." if get_pref('options', 'folder_in') == nil
+    raise "No watchfolder given."       if get_pref('options', 'folder_in') == nil
+    raise "No outfolder given."         if get_pref('options', 'folder_out') == nil
+    raise "No processed folder given."  if get_pref('options', 'folder_processed') == nil
   end
 
   def save_prefs

@@ -27,11 +27,13 @@ describe PdfNumberer do
     @numberer.prefs["options"]["folder_out"].should  eql(@preferences["options"]["folder_out"])
   end
 
-  it "should check the preferences" do
-    @numberer.prefs["options"]['default']["folder_in"] = nil
-    lambda {
-      @numberer.check_prefs
-    }.should raise_error(ArgumentError) #, "Preference file may be corrupt (missing options: default: folder_in)")
+  ['folder_in', 'folder_out', 'folder_processed'].each do |folder|
+    it "should check the preferences '#{folder}'" do
+      @numberer.prefs["options"]['default'][folder] = nil
+      lambda {
+        @numberer.check_prefs
+      }.should raise_error(ArgumentError) #, "Preference file may be corrupt (missing options: default: folder_in)")
+    end
   end
 
   it "should watch a given folder" do
