@@ -1,3 +1,4 @@
+require 'logger'
 require 'yaml'
 require 'watcher'
 require 'fileutils'
@@ -9,8 +10,10 @@ class PdfNumberer
 
   attr :pdf
   attr :prefs
+  attr :logger
 
   def initialize(config_file = PREFS_FILE)
+    @logger = Logger.new(STDOUT)
     @config_file = config_file
     read_prefs
   end
@@ -41,10 +44,10 @@ class PdfNumberer
   def traverse_subfolders(folder)
     Dir["#{File.expand_path(folder)}/*"].each do |dir|
       if File.basename(dir) =~ /^\d{7}$/
-        puts "Processing: #{dir}"
         process_folder_items(dir)
+        logger.info "#{self.class}\tTraversing #{ordernumber} (#{dir})"
       else
-        puts "What is this? (#{dir})"
+        logger.warn "#{self.class}\tWhat is this? (#{dir})"
       end
     end
   end
@@ -53,10 +56,10 @@ class PdfNumberer
     Dir["#{dir}/*"].each do |item|
       if item =~ /.pdf$/
         if process_pdf(item)
-          puts "\tdone"
+          logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(item)}\tdone"
         end
       else
-        puts "\tNot a PDF (#{item.inspect})"
+        logger.info "#{self.class}\tNot a PDF (#{item.inspect})"
       end
     end
   end
@@ -86,6 +89,6 @@ class PdfNumberer
 end
 
 # if ARGV.include?('-h')
-#   puts "Usage #{$0}:\n -p to post for real\n -d [postnumber] for ignoring \n -s Sync (fill local database)" 
+#   logger.info "#{self.class}\tUsage #{$0}:\n -p to post for real\n -d [postnumber] for ignoring \n -s Sync (fill local database)" 
 #   exit
 # end

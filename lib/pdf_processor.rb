@@ -1,10 +1,13 @@
+require 'logger'
 require 'PDFlib'
 class PdfProcessor
   ROOT = File.expand_path(File.dirname(__FILE__))
 
   attr :pdf
+  attr :logger
 
   def initialize(file, options={})
+    @logger = Logger.new(STDOUT)
     set_options(options)
 
     @infile = File.expand_path(file)
@@ -13,7 +16,7 @@ class PdfProcessor
     @pdf.set_parameter('license', 'X600605-009100-4658BC-16F263')
 
     static_file_name = File.join(File.expand_path(@savepath), @filename)
-    puts "[41;37;1m#{static_file_name}[0m"
+    logger.info "#{self.class}\tOutfile: #{static_file_name}"
     @new_doc = @pdf.begin_document(static_file_name, "")
       raise "Error: " + @pdf.get_errmsg() if (@new_doc == -1)
 
@@ -25,7 +28,7 @@ class PdfProcessor
       @pdf.set_info("Author",  "Leon Berenschot")
       @pdf.set_info("Title",   "PdfNumberer")
 
-      puts "processing #{@infile}"
+      logger.info "#{self.class}\tProcessing: #{@infile}"
       @doc = @pdf.open_pdi(@infile, "", 0)
         raise "Error: " + @pdf.get_errmsg() if (@doc == -1)
         page_count = @pdf.get_pdi_value('/Root/Pages/Count', @doc, -1, 0)
@@ -53,9 +56,8 @@ class PdfProcessor
 
   end
 
-  def make_code(code)
-    # put the code on the file
-    puts "\t\t[41;37;1m CODE [0m"
+  def make_code(code) # put the code on the file
+    logger.info "#{self.class}\t[41;37;1m CODE [0m"
   end
 
 protected
