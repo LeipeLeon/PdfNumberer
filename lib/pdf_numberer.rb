@@ -58,7 +58,7 @@ class PdfNumberer
   end
 
   def process_folder_items(dir, ordernumber = 0)
-    Dir["#{dir}/*"].each do |item|
+    Dir["#{dir}/*"].sort.each do |item|
       if item =~ /.pdf$/
         if process_pdf(item, ordernumber)
           move_to_processed_dir(item, ordernumber)
