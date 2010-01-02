@@ -115,6 +115,7 @@ class PdfNumberer
   #   logger.info "#{self.class}\tSaving PDF file #{file}"
   # end
 
+  # INFO: Folders must be on the same filesystem
   def move_to_processed_dir(pdf_file, ordernumber)
     move_to = prepare_processed_folder(ordernumber)
     logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tmoving #{File.basename(pdf_file)} to #{move_to}"
