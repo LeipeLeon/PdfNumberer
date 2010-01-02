@@ -77,7 +77,8 @@ class PdfNumberer
     new_file = PdfProcessor.new(pdf_file, 
       :code        => code,
       :filename    => "#{code}.pdf",
-      :savepath    => savepath
+      :savepath    => savepath,
+      :on_pages    => [1,5]
     )
   end
 

@@ -38,7 +38,8 @@ class PdfProcessor
             # Establish coordinates with the origin in the upper left corner.
             @pdf.begin_page_ext(@pagewidth, @pageheight, "topdown")
               @pdf.fit_pdi_page(@page, 0, @pageheight, "")
-              if 1 == page_counter
+              if @on_pages.include?(page_counter)
+                # @rotation   = options[:rotation]
                 @pdf.setfont(@pdf.load_font(@regularfont, "winansi", "embedding"), @fontsize)
                 @pdf.set_value("leading", @leading)
                 @pdf.setcolor("fill", "cmyk", 0.0, 0.0, 0.0, 1)
@@ -76,7 +77,8 @@ protected
       :bleedbox    => "bleedbox {-3 -3 601 848}", # A4
       :x           => 216,
       :y           => 720,
-      :code        => 'CODE'
+      :code        => 'CODE',
+      :on_pages    => [1]
     }.merge(options)
 
     # setting defaults
@@ -98,6 +100,7 @@ protected
       :x => options[:x],
       :y => options[:y]
     }
+    @on_pages   = options[:on_pages]
 
     @code = options[:code]
 
