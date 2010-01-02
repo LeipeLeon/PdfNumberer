@@ -80,6 +80,8 @@ class PdfNumberer
       :savepath    => savepath,
       :on_pages    => [1,5],
       :rotation    => -90,
+      :x           => 30,
+      :y           => 600
     )
   end
 
