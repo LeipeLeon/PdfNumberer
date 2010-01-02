@@ -33,7 +33,8 @@ class PdfNumberer
   end
 
   def save_prefs
-    File.open(@config_file, 'w') { |f| f.puts @prefs.to_yaml }
+    return true if ENV['ENVIRONMENT'] == 'test'
+    File.open(@config_file, 'w') { |f| f.print @prefs.to_yaml }
   end
 
   def watch
@@ -43,19 +44,21 @@ class PdfNumberer
 
   def traverse_subfolders(folder)
     Dir["#{File.expand_path(folder)}/*"].each do |dir|
-      if File.basename(dir) =~ /^\d{7}$/
-        process_folder_items(dir)
+      ordernumber = File.basename(dir)
+      if ordernumber =~ /^\d{7}$/
         logger.info "#{self.class}\tTraversing #{ordernumber} (#{dir})"
+        process_folder_items(dir, ordernumber)
       else
         logger.warn "#{self.class}\tWhat is this? (#{dir})"
       end
     end
   end
 
-  def process_folder_items(dir)
+  def process_folder_items(dir, ordernumber = 0)
     Dir["#{dir}/*"].each do |item|
       if item =~ /.pdf$/
-        if process_pdf(item)
+        if process_pdf(item, ordernumber)
+          move_to_processed_dir(item, ordernumber)
           logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(item)}\tdone"
         end
       else
@@ -64,28 +67,60 @@ class PdfNumberer
     end
   end
 
-  def process_pdf(pdf_file)
-    # pdf = PDFlib.new
-    puts "\tProcessing #{pdf_file}"
-    new_file = PdfProcessor.new(pdf_file)
-    new_file.make_code('123123123')
-    save_in_out_folder(new_file)
+  def process_pdf(pdf_file, ordernumber = 0)
+    logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tProcessing: #{pdf_file}"
+    new_file = PdfProcessor.new(pdf_file, 
+      :code        => create_code(pdf_file, ordernumber),
+      :filename    => "new.pdf"
+      # :savepath    => "#{ROOT}/../out"
+    )
   end
 
-  def save_in_out_folder(file)
-    puts "\t\tSaving PDF file #{file}"
+  def create_code(pdf_file, ordernumber = 0)
+    # {ordernumber}-{date}-{counter}-{filename}
+    new_number = counter(ordernumber).to_s
+    template = @prefs['orders'][ordernumber.to_i]
+    template = @prefs['orders']["default"]
+
+    template = replace_tag(template, 'ordernumber', "%07d" % ordernumber)
+    template = replace_tag(template, 'date',        DateTime.now.strftime("%Y/%m/%d"))
+    template = replace_tag(template, 'counter',     "%07d" % new_number)
+    template = replace_tag(template, 'filename',    File.basename(pdf_file, '.pdf'))
+    logger.info template
+    template
   end
 
-  # def move_to_out_folder(pdf_file)
-  #   if ENV['ENVIRONMENT'] == 'test'
-  #     puts "\t\t(Sould move file, but we're in test)"
-  #   else
-  #     FileUtils.mv(
-  #       pdf_file, 
-  #       File.expand_path(@prefs["folders"]["out"], File.basename(pdf_file))
-  #     )
-  #   end
+  def counter(ordernumber)
+    if @prefs["counter"][ordernumber.to_i]
+      @prefs["counter"][ordernumber.to_i] += 1
+    else
+      @prefs["counter"][ordernumber.to_i] = 1
+    end
+    save_prefs
+    @prefs["counter"][ordernumber.to_i]
+  end
+
+  # def save_in_out_folder(file)
+  #   logger.info "#{self.class}\tSaving PDF file #{file}"
   # end
+
+  def move_to_processed_dir(pdf_file, ordernumber)
+    if ENV['ENVIRONMENT'] == 'test'
+      logger.info "#{self.class}\t(Sould move file, but we're in test)"
+    else
+      logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tmoving to processed (#{pdf_file})"
+      FileUtils.mv(
+        pdf_file, 
+        File.expand_path(@prefs["folders"]["processed"], File.basename(pdf_file))
+      )
+    end
+  end
+
+  def replace_tag(template, tag, replace)
+    matches = template.match(/\{#{tag}\}/)
+    template.gsub!(/\{#{tag}\}/, replace.to_s) if matches
+    template
+  end
 end
 
 # if ARGV.include?('-h')

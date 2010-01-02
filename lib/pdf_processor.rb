@@ -39,10 +39,10 @@ class PdfProcessor
             @pdf.begin_page_ext(@pagewidth, @pageheight, "topdown")
               @pdf.fit_pdi_page(@page, 0, @pageheight, "")
               if 1 == page_counter
-                @pdf.setfont(@pdf.load_font(@regularfont, "winansi", ""), @fontsize)
+                @pdf.setfont(@pdf.load_font(@regularfont, "winansi", "embedding"), @fontsize)
                 @pdf.set_value("leading", @leading)
                 @pdf.setcolor("fill", "cmyk", 0.0, 0.0, 0.0, 1)
-                @pdf.show_xy("CODE", @position[:x], @position[:y])
+                @pdf.show_xy(@code, @position[:x], @position[:y])
                 # @pdf.continue_text(@customer.email)
                 # @pdf.setcolor("fill", "cmyk", 0.0, 0, 1, 0)
                 # @pdf.show_xy("#{@customer.first_name} #{@customer.last_name}", 60-2, y-2)
@@ -75,7 +75,8 @@ protected
       :pageparams  => "bleedbox {-3 -3 601 848}", # A4
       :bleedbox    => "bleedbox {-3 -3 601 848}", # A4
       :x           => 216,
-      :y           => 720
+      :y           => 720,
+      :code        => 'CODE'
     }.merge(options)
 
     # setting defaults
@@ -97,6 +98,9 @@ protected
       :x => options[:x],
       :y => options[:y]
     }
+
+    @code = options[:code]
+
     # list of encodings to use
     @encodings = ["iso8859-1", "iso8859-2", "iso8859-15"]
   end
