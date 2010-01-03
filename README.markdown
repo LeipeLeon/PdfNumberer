@@ -69,7 +69,7 @@ Restricties:
 ============
 
 - `folder_in` en `folder_processed` moeten op hetzelfde filesysteem staan.
-- Test met extreem veel bestanden is nog niet uitgevoerd. (misschien een wachtijd forceren van enkele seconden naar gelang aantal bestanden?)
+- Test met extreem veel bestanden is nog niet uitgevoerd. (er is een automatische wachtijd van het aantal bestanden * 10 millisec)
 - Aanpassingen in de config file alleen doen als het programma gestopt is, bestanden worden namelijk overschreven.
 - De software draait op dit moment alleen op OSX 10.6 (Leopard)
 

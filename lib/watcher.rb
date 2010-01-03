@@ -12,6 +12,12 @@ class Watcher
     # logger.info "#{self.class}\t#{File.expand_path(folder).inspect}"
     if File.exists?(File.expand_path(folder))
       `#{File.join( File.expand_path(File.dirname(__FILE__) + '/..'), 'bin', 'fsevent_sleep')} '#{File.expand_path(folder)}' 2>&1`
+
+      # force a sleep for size * 10 milliseconds
+      Dir["#{File.expand_path(folder)}/*"].each do |dir|
+        sleep Dir["#{dir}/*"].size / 100.0
+      end
+
       folder
     else
       raise "Watchfolder doen't exist (#{folder})"
