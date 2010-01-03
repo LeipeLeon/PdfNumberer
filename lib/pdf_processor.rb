@@ -8,6 +8,8 @@ class PdfProcessor
 
   def initialize(file, options={})
     @logger = Logger.new(STDOUT)
+    @logger.level = Logger::INFO
+    @logger.level = Logger::DEBUG if ENV['DEBUG']
     set_options(options)
 
     @infile = File.expand_path(file)
@@ -16,7 +18,7 @@ class PdfProcessor
     @pdf.set_parameter('license', 'X600605-009100-4658BC-16F263')
 
     static_file_name = File.join(File.expand_path(@savepath), @filename)
-    logger.info "#{self.class}\tOutfile: #{static_file_name}"
+    logger.debug "#{self.class}\tOutfile: #{static_file_name}"
     @new_doc = @pdf.begin_document(static_file_name, "")
       raise "Error: " + @pdf.get_errmsg() if (@new_doc == -1)
 
@@ -28,7 +30,7 @@ class PdfProcessor
       @pdf.set_info("Author",  "Leon Berenschot")
       @pdf.set_info("Title",   "PdfNumberer")
 
-      logger.info "#{self.class}\tProcessing: #{@infile}"
+      logger.debug "#{self.class}\tProcessing: #{@infile}"
       @doc = @pdf.open_pdi(@infile, "", 0)
         raise "Error: " + @pdf.get_errmsg() if (@doc == -1)
         page_count = @pdf.get_pdi_value('/Root/Pages/Count', @doc, -1, 0)
@@ -42,6 +44,7 @@ class PdfProcessor
               @pdf.set_value("leading", @leading)
 
               make_grid if ENV['DEBUG']
+
               if @on_pages.include?(page_counter)
                 # @rotation   = options[:rotation]
                 @pdf.save

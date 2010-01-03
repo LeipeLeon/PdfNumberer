@@ -17,6 +17,8 @@ class PdfNumberer
 
   def initialize(config_file = PREFS_FILE)
     @logger = Logger.new(STDOUT)
+    @logger.level = Logger::INFO
+    @logger.level = Logger::DEBUG if ENV['DEBUG']
     @config_file = config_file
     read_prefs
   end
@@ -51,7 +53,7 @@ class PdfNumberer
     Dir["#{File.expand_path(folder)}/*"].each do |dir|
       ordernumber = File.basename(dir)
       if ordernumber =~ /^\d{7}$/
-        logger.info "#{self.class}\tTraversing #{ordernumber} (#{dir})"
+        logger.debug "#{self.class}\tTraversing #{ordernumber} (#{dir})"
         process_folder_items(dir, ordernumber)
       else
         logger.warn "#{self.class}\tWhat is this? (#{dir})"
@@ -64,10 +66,10 @@ class PdfNumberer
       if item =~ /.pdf$/
         if process_pdf(item, ordernumber)
           move_to_processed_dir(item, ordernumber)
-          logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(item)}\tdone"
+          logger.debug "#{self.class}\t#{ordernumber}\t#{File.basename(item)}\tdone"
         end
       else
-        logger.info "#{self.class}\tNot a PDF (#{item.inspect})"
+        logger.debug "#{self.class}\tNot a PDF (#{item.inspect})"
       end
     end
   end
@@ -97,7 +99,7 @@ class PdfNumberer
     template = replace_tag(template, 'date',        DateTime.now.strftime("%Y-%m-%d"))
     template = replace_tag(template, 'counter',     "%07d" % new_number)
     template = replace_tag(template, 'filename',    File.basename(pdf_file, '.pdf'))
-    logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tCode: #{template}"
+    logger.debug "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tCode: #{template}"
     template
   end
 
@@ -112,16 +114,16 @@ class PdfNumberer
   end
 
   # def save_in_out_folder(file)
-  #   logger.info "#{self.class}\tSaving PDF file #{file}"
+  #   logger.debug "#{self.class}\tSaving PDF file #{file}"
   # end
 
   # INFO: Folders must be on the same filesystem
   def move_to_processed_dir(pdf_file, ordernumber)
     move_to = prepare_processed_folder(ordernumber)
-    logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tmoving #{File.basename(pdf_file)} to #{move_to}"
+    logger.debug "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tmoving #{File.basename(pdf_file)} to #{move_to}"
 
     if ENV['ENVIRONMENT'] == 'test'
-      logger.info "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\t(Sould move file, but we're in test)"
+      logger.debug "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\t(Sould move file, but we're in test)"
     else
       FileUtils.mv(
         pdf_file, 
@@ -162,6 +164,6 @@ protected
 end
 
 # if ARGV.include?('-h')
-#   logger.info "#{self.class}\tUsage #{$0}:\n -p to post for real\n -d [postnumber] for ignoring \n -s Sync (fill local database)" 
+#   logger.debug "#{self.class}\tUsage #{$0}:\n -p to post for real\n -d [postnumber] for ignoring \n -s Sync (fill local database)" 
 #   exit
 # end
