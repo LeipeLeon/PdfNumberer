@@ -22,7 +22,7 @@ class PdfProcessor
     @pdf.set_parameter('license', 'X600605-009100-4658BC-16F263')
 
     static_file_name = File.join(File.expand_path(@savepath), @filename)
-    logger.debug "#{self.class}\tOutfile: #{static_file_name}"
+    logger.debug "#{self.class}:#{__LINE__}\tOutfile: #{static_file_name}"
     @new_doc = @pdf.begin_document(static_file_name, "")
       raise "Error: " + @pdf.get_errmsg() if (@new_doc == -1)
 
@@ -34,7 +34,7 @@ class PdfProcessor
       @pdf.set_info("Author",  "Leon Berenschot")
       @pdf.set_info("Title",   "PdfNumberer")
 
-      logger.debug "#{self.class}\tProcessing: #{@infile}"
+      logger.debug "#{self.class}:#{__LINE__}\tProcessing: #{@infile}"
       @doc = @pdf.open_pdi(@infile, "", 0)
         raise "Error: " + @pdf.get_errmsg() if (@doc == -1)
         page_count = @pdf.get_pdi_value('/Root/Pages/Count', @doc, -1, 0)

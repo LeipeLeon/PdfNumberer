@@ -53,10 +53,10 @@ class PdfNumberer
     Dir["#{File.expand_path(folder)}/*"].each do |dir|
       ordernumber = File.basename(dir)
       if ordernumber =~ /^\d{7}$/
-        logger.debug "#{self.class}\tTraversing #{ordernumber} (#{dir})"
+        logger.debug "#{self.class}:#{__LINE__}\tTraversing #{ordernumber} (#{dir})"
         process_folder_items(dir, ordernumber)
       else
-        logger.warn "#{self.class}\tWhat is this? (#{dir})"
+        logger.warn "#{self.class}:#{__LINE__}\tWhat is this? (#{dir})"
       end
     end
   end
@@ -66,16 +66,16 @@ class PdfNumberer
       if item =~ /.pdf$/
         if process_pdf(item, ordernumber)
           move_to_processed_dir(item, ordernumber)
-          logger.debug "#{self.class}\t#{ordernumber}\t#{File.basename(item)}\tdone"
+          logger.debug "#{self.class}:#{__LINE__}\t#{ordernumber}\t#{File.basename(item)}\tdone"
         end
       else
-        logger.debug "#{self.class}\tNot a PDF (#{item.inspect})"
+        logger.debug "#{self.class}:#{__LINE__}\tNot a PDF (#{item.inspect})"
       end
     end
   end
 
   def process_pdf(pdf_file, ordernumber = 0)
-    logger.info "#{self.class}\t[41;37;1m#{ordernumber}\t#{File.basename(pdf_file)}[0m\tProcessing: #{pdf_file}"
+    logger.info "#{self.class}:#{__LINE__}\t[42;37;1m#{ordernumber}\t#{File.basename(pdf_file)}[0m\tProcessing..."
     savepath = prepare_out_folder(ordernumber)
     code, file_name = create_code(pdf_file, ordernumber)
     if file_name.length >= get_pref('options','max_filename_size')
@@ -108,8 +108,8 @@ class PdfNumberer
     filename = replace_tag(filename, 'counter',     "%05d" % new_number)
     filename = replace_tag(filename, 'filename',    File.basename(pdf_file, '.pdf'))
 
-    logger.debug "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tCode: #{template}"
     [template, filename]
+    logger.debug "#{self.class}:#{__LINE__}\t#{ordernumber}\t#{File.basename(pdf_file)}\tCode: #{res.inspect}"
   end
 
   def counter(ordernumber)
@@ -123,16 +123,16 @@ class PdfNumberer
   end
 
   # def save_in_out_folder(file)
-  #   logger.debug "#{self.class}\tSaving PDF file #{file}"
+  #   logger.debug "#{self.class}:#{__LINE__}\tSaving PDF file #{file}"
   # end
 
   # INFO: Folders must be on the same filesystem
   def move_to_processed_dir(pdf_file, ordernumber)
     move_to = prepare_processed_folder(ordernumber)
-    logger.debug "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tmoving #{File.basename(pdf_file)} to #{move_to}"
+    logger.debug "#{self.class}:#{__LINE__}\t#{ordernumber}\t#{File.basename(pdf_file)}\tmoving #{File.basename(pdf_file)} to #{move_to}"
 
     if ENV['ENVIRONMENT'] == 'test'
-      logger.debug "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\t(Sould move file, but we're in test)"
+      logger.debug "#{self.class}:#{__LINE__}\t#{ordernumber}\t#{File.basename(pdf_file)}\t(Sould move file, but we're in test)"
     else
       FileUtils.mv(
         pdf_file, 
@@ -173,6 +173,6 @@ protected
 end
 
 # if ARGV.include?('-h')
-#   logger.debug "#{self.class}\tUsage #{$0}:\n -p to post for real\n -d [postnumber] for ignoring \n -s Sync (fill local database)" 
+#   logger.debug "#{self.class}:#{__LINE__}\tUsage #{$0}:\n -p to post for real\n -d [postnumber] for ignoring \n -s Sync (fill local database)" 
 #   exit
 # end
