@@ -96,20 +96,19 @@ class PdfNumberer
     # {ordernumber}-{date}-{counter}-{filename}
     new_number = counter(ordernumber.to_i).to_s
 
-    template = get_pref('options', 'code_format', ordernumber).dup
-    template = replace_tag(template, 'ordernumber', "%07d" % ordernumber)
-    template = replace_tag(template, 'date',        DateTime.now.strftime("%Y-%m-%d"))
-    template = replace_tag(template, 'counter',     "%05d" % new_number)
-    template = replace_tag(template, 'filename',    File.basename(pdf_file, '.pdf'))
+    res = []
+    [ get_pref('options', 'code_format',     ordernumber).dup,
+      get_pref('options', 'file_out_format', ordernumber).dup
+    ].each do |template|
+      template = replace_tag(template, 'ordernumber', "%07d" % ordernumber)
+      template = replace_tag(template, 'date',        DateTime.now.strftime("%Y-%m-%d"))
+      template = replace_tag(template, 'counter',     "%05d" % new_number)
+      template = replace_tag(template, 'filename',    File.basename(pdf_file, '.pdf'))
+      res << template
+    end
 
-    filename = get_pref('options', 'file_out_format', ordernumber).dup
-    filename = replace_tag(filename, 'ordernumber', "%07d" % ordernumber)
-    filename = replace_tag(filename, 'date',        DateTime.now.strftime("%Y-%m-%d"))
-    filename = replace_tag(filename, 'counter',     "%05d" % new_number)
-    filename = replace_tag(filename, 'filename',    File.basename(pdf_file, '.pdf'))
-
-    [template, filename]
     logger.debug "#{self.class}:#{__LINE__}\t#{ordernumber}\t#{File.basename(pdf_file)}\tCode: #{res.inspect}"
+    res
   end
 
   def counter(ordernumber)

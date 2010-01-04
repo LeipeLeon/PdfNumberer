@@ -21,7 +21,7 @@ if `ps waux | grep numberer | grep fsevent_sleep`.split("\n").length > 1
 end
 
 numberer = PdfNumberer.new
-puts "[41;37;1m\nCurrent Config:\n\n"
+puts "[43m\nCurrent Config:\n\n"
 puts numberer.prefs.to_yaml
 puts "\n\n[0m"
 
