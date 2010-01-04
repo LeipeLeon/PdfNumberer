@@ -69,7 +69,7 @@ describe PdfNumberer do
   end
 
   it "should create code with a template" do
-    @numberer.create_code('000070010879.pdf', '4000000').should eql([timestamped_code, '4000000-00001-000070010879'])
+    @numberer.create_code('000070010879.pdf', '4000000').should eql([timestamped_code, '4000000-00001-000070010879.pdf'])
   end
 
   def timestamped_code

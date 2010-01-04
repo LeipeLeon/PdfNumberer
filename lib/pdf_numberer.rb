@@ -83,7 +83,7 @@ class PdfNumberer
     end
     new_file = PdfProcessor.new(pdf_file, 
       :code        => code,
-      :filename    => "#{file_name}.pdf",
+      :filename    => file_name,
       :savepath    => savepath,
       :on_pages    => get_pref('options', 'on_pages', ordernumber),
       :rotation    => get_pref('options', 'rotation', ordernumber),
