@@ -77,10 +77,10 @@ class PdfNumberer
   def process_pdf(pdf_file, ordernumber = 0)
     logger.info "#{self.class}\t[41;37;1m#{ordernumber}\t#{File.basename(pdf_file)}[0m\tProcessing: #{pdf_file}"
     savepath = prepare_out_folder(ordernumber)
-    code = create_code(pdf_file, ordernumber)
+    code, file_name = create_code(pdf_file, ordernumber)
     new_file = PdfProcessor.new(pdf_file, 
       :code        => code,
-      :filename    => "#{code}.pdf",
+      :filename    => "#{file_name}.pdf",
       :savepath    => savepath,
       :on_pages    => get_pref('options', 'on_pages', ordernumber),
       :rotation    => get_pref('options', 'rotation', ordernumber),
@@ -94,13 +94,19 @@ class PdfNumberer
     new_number = counter(ordernumber.to_i).to_s
 
     template = get_pref('options', 'code_format', ordernumber).dup
-
     template = replace_tag(template, 'ordernumber', "%07d" % ordernumber)
     template = replace_tag(template, 'date',        DateTime.now.strftime("%Y-%m-%d"))
-    template = replace_tag(template, 'counter',     "%07d" % new_number)
+    template = replace_tag(template, 'counter',     "%05d" % new_number)
     template = replace_tag(template, 'filename',    File.basename(pdf_file, '.pdf'))
+
+    filename = get_pref('options', 'file_out_format', ordernumber).dup
+    filename = replace_tag(filename, 'ordernumber', "%07d" % ordernumber)
+    filename = replace_tag(filename, 'date',        DateTime.now.strftime("%Y-%m-%d"))
+    filename = replace_tag(filename, 'counter',     "%05d" % new_number)
+    filename = replace_tag(filename, 'filename',    File.basename(pdf_file, '.pdf'))
+
     logger.debug "#{self.class}\t#{ordernumber}\t#{File.basename(pdf_file)}\tCode: #{template}"
-    template
+    [template, filename]
   end
 
   def counter(ordernumber)

@@ -58,7 +58,7 @@ describe PdfNumberer do
     PdfProcessor.should_receive(:new).with(
       SPEC_TEST_PDF, 
       :code        => timestamped_code,
-      :filename    => "#{timestamped_code}.pdf",
+      :filename    => "4000000-00001-000070010879.pdf",
       :savepath    => File.expand_path(@preferences["options"]['default']["folder_out"] + '/4000000'),
       :on_pages    => @preferences['options']['default']['on_pages'],
       :rotation    => @preferences['options']['default']['rotation'],
@@ -69,11 +69,11 @@ describe PdfNumberer do
   end
 
   it "should create code with a template" do
-    @numberer.create_code('000070010879.pdf', '4000000').should eql(timestamped_code)
+    @numberer.create_code('000070010879.pdf', '4000000').should eql([timestamped_code, '4000000-00001-000070010879'])
   end
 
   def timestamped_code
-    "4000000-#{DateTime.now.strftime("%Y-%m-%d")}-0000001-000070010879"
+    "4000000-#{DateTime.now.strftime("%Y-%m-%d")}-00001-000070010879"
   end
 
 end

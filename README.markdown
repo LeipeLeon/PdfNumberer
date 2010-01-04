@@ -37,6 +37,8 @@ Een voorbeel configuratie bestand: (geplaatst in `~/pdf_numberer`)
   <dd>In deze map komen de orginele bestanden terecht (**moet op hetzelfde filesystem als `folder_in` staan!**)</dd>
 <dt>`code_format:`</dt>
   <dd>Format van code string, opties zijn `ordernumber`, `date`, `counter` en `filename`. Deze moeten dan door `{}` worden omsloten</dd>
+<dt>`file_out_format:`</dt>
+  <dd>Formattering van output filename (extensie __moet__ in string, opties zijn hetzelfde als `code_format:`)</dd>
 <dt>`rotation:`</dt>
   <dd>Rotatie van de code (ClockWise)</dd>
 <dt>`x:`, `y:`</dt>
