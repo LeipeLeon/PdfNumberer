@@ -6,6 +6,7 @@ options:
     folder_processed: ~/Desktop/BerieDataProjecten/2009-VDA-CVZ/pdf_numberer/processed
     code_format: "{ordernumber}-{date}-{counter}-{filename}"
     file_out_format: "{ordernumber}-{counter}-{filename}"
+    max_filename_size: 32
     x: 30
     y: 600
     rotation: -90

@@ -39,6 +39,8 @@ Een voorbeel configuratie bestand: (geplaatst in `~/pdf_numberer`)
   <dd>Format van code string, opties zijn `ordernumber`, `date`, `counter` en `filename`. Deze moeten dan door `{}` worden omsloten</dd>
 <dt>`file_out_format:`</dt>
   <dd>Formattering van output filename (extensie __moet__ in string, opties zijn hetzelfde als `code_format:`)</dd>
+<dt>`max_filename_size:`</dt>
+  <dd>Maximale lengte van uitgaande bestandsnaam (laat applicatie niet chrashen maar geeft foutmelding in terminal)</dd>
 <dt>`rotation:`</dt>
   <dd>Rotatie van de code (ClockWise)</dd>
 <dt>`x:`, `y:`</dt>

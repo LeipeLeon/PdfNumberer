@@ -78,6 +78,9 @@ class PdfNumberer
     logger.info "#{self.class}\t[41;37;1m#{ordernumber}\t#{File.basename(pdf_file)}[0m\tProcessing: #{pdf_file}"
     savepath = prepare_out_folder(ordernumber)
     code, file_name = create_code(pdf_file, ordernumber)
+    if file_name.length >= get_pref('options','max_filename_size')
+      logger.warn "#{self.class}:#{__LINE__}\t[41;37;1m#{ordernumber}\t#{File.basename(pdf_file)}\tFilename to long? (#{file_name})[0m" 
+    end
     new_file = PdfProcessor.new(pdf_file, 
       :code        => code,
       :filename    => "#{file_name}.pdf",
