@@ -88,7 +88,8 @@ class PdfNumberer
       :on_pages    => get_pref('options', 'on_pages', ordernumber),
       :rotation    => get_pref('options', 'rotation', ordernumber),
       :x           => get_pref('options', 'x', ordernumber),
-      :y           => get_pref('options', 'y', ordernumber)
+      :y           => get_pref('options', 'y', ordernumber),
+      :regularfont => get_pref('options', 'regularfont', ordernumber)
     )
   end
 

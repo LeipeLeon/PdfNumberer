@@ -15,5 +15,6 @@ describe PdfProcessor do
 
     it "should create a new file"
     it "should put the number on the frontpage"
+    it "should raise error when font is not correct"
   end
 end

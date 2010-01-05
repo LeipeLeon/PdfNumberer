@@ -13,6 +13,7 @@ options:
     on_pages: 
       - 1
       - 5
+    regularfont: LucidaSansStd
 counter:
   default: 0
   4000000: 0

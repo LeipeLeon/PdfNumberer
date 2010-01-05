@@ -63,7 +63,8 @@ describe PdfNumberer do
       :on_pages    => @preferences['options']['default']['on_pages'],
       :rotation    => @preferences['options']['default']['rotation'],
       :x           => @preferences['options']['default']['x'],
-      :y           => @preferences['options']['default']['y']
+      :y           => @preferences['options']['default']['y'],
+      :regularfont => @preferences['options']['default']['regularfont']
     ).and_return(PDFlib)
     @numberer.process_pdf(SPEC_TEST_PDF, "4000000").should eql(PDFlib)
   end

@@ -26,6 +26,11 @@ puts numberer.prefs.to_yaml
 puts "\n\n[0m"
 
 while true
-  numberer.watch
+  begin
+    numberer.watch
+  rescue PDFlibException => e
+    puts "\n[41;37;1m\tPDFlibException: #{e}\t\t\n[0m"
+    exit
+  end
 end
 
